@@ -104,6 +104,17 @@ append_curl_auth() {
     fi
 }
 
+write_http_code_output() {
+    local code=$1
+    if [[ -n "${GITHUB_OUTPUT_FILE}" ]]; then
+        {
+            echo "http_code=${code}"
+        } >>"${GITHUB_OUTPUT_FILE}"
+    else
+        echo "http_code=${code}"
+    fi
+}
+
 write_deployment_uuid_output() {
     local uuid=$1
     if [[ -n "${GITHUB_OUTPUT_FILE}" ]]; then
@@ -128,8 +139,11 @@ trigger_deploy() {
         exit 1
     fi
 
+    write_http_code_output "${code}"
+
     if [[ "${code}" != "200" ]]; then
-        print_message ERROR "Expected HTTP 200 from deploy, got ${code}"
+        print_message ERROR "Deploy not accepted or unexpected status (HTTP ${code})"
+        log_api_response_body "${DEPLOY_RESPONSE_FILE}"
         exit 1
     fi
 
@@ -139,6 +153,7 @@ trigger_deploy() {
     fi
     if [[ ! -s "${DEPLOY_RESPONSE_FILE}" ]] || ! jq -e . >/dev/null 2>&1 <"${DEPLOY_RESPONSE_FILE}"; then
         print_message ERROR "Deploy response is empty or not valid JSON"
+        log_api_response_body "${DEPLOY_RESPONSE_FILE}"
         exit 1
     fi
 
@@ -150,6 +165,7 @@ trigger_deploy() {
     fi
     if [[ -z "${uuid}" ]]; then
         print_message ERROR "deploy response missing deployment_uuid"
+        log_api_response_body "${DEPLOY_RESPONSE_FILE}"
         exit 1
     fi
 

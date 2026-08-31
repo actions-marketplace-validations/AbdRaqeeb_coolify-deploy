@@ -152,7 +152,8 @@ patch_docker_image_tag() {
     if [[ "${code}" == "200" ]]; then
         print_message INFO "Image tag updated (HTTP ${code})"
     else
-        print_message ERROR "Expected HTTP 200 from PATCH, got ${code}"
+        print_message ERROR "Image tag update failed or unexpected status (HTTP ${code})"
+        log_api_response_body /tmp/02_patch_app.json
         exit 1
     fi
 }

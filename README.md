@@ -45,7 +45,7 @@ Pin to a **release tag** (for example `v1` or `v1.0.0`), not a moving branch, in
 
 ### Behavior notes
 
-- If **GET** `/api/v1/applications/{id}` does not return HTTP 200, later steps are skipped (no hard failure on missing app in that step).
+- If **GET** `/api/v1/applications/{id}` does not return HTTP 200, the action fails immediately (non-200 exits with an error).
 - **PATCH** and **POST** deploy expect HTTP 200; non-200 exits the job with an error from the scripts.
 - The wait step treats `finished` as success and `error` / `failed` or unexpected statuses as failure. Polling defaults: every **10** seconds, max **3600** seconds (overridable in the shell script via `POLL_INTERVAL_SECONDS` / `MAX_WAIT_SECONDS` if you run scripts manually; the composite action does not expose those as inputs yet).
 

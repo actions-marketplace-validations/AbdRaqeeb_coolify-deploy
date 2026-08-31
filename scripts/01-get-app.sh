@@ -164,7 +164,9 @@ fetch_application() {
         print_app_name_and_image_tags "${GET_APP_RESPONSE_FILE}"
         print_message INFO "App is available (HTTP ${code})"
     else
-        print_message WARN "App not available or unexpected status (HTTP ${code}); skipping downstream deploy steps in workflow"
+        print_message ERROR "App not available or unexpected status (HTTP ${code})"
+        log_api_response_body "${GET_APP_RESPONSE_FILE}"
+        exit 1
     fi
 }
 

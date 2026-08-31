@@ -24,3 +24,15 @@ print_message() {
         *) echo "[${level}] ${msg}" ;;
     esac
 }
+
+# Log API error payload to stderr (capped) when GET/PATCH/POST fails or body is invalid.
+log_api_response_body() {
+    local path=${1:-}
+    local max_bytes=${2:-8192}
+    if [[ -z "${path}" || ! -f "${path}" || ! -s "${path}" ]]; then
+        return 0
+    fi
+    print_message ERROR "Response body (first ${max_bytes} bytes):"
+    head -c "${max_bytes}" "${path}" >&2 || true
+    echo >&2
+}
